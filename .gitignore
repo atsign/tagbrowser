@@ -1,0 +1,3 @@
+# Ignore config.php so developer-specific settings can go in there without being committed
+
+config.php
