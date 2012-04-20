@@ -17,8 +17,12 @@ function tagSuggestions($client_id) {
 }
 
 function tagIsWellFormed($tag) {
-	if (strpos($tag, " ") === false) return true;
-	else return false;
+	$isWellFormed = true;
+	
+	// So far, just checks that the tag is alphanumeric. This might get more sophisticated in the future
+	$isWellFormed = ctype_alnum(stripHash($tag));
+	
+	return $isWellFormed;
 }
 
 function stripHash($term) {

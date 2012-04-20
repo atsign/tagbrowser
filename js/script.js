@@ -29,7 +29,8 @@ var TagBrowser = {
 	// Global tag data from latest call to Instagram API
 	tagData: null,
 	
-	
+	// The current tag being queried/displayed, as a string
+	tag: null,
 	
 	
 	
@@ -37,22 +38,77 @@ var TagBrowser = {
 	 * Instance Methods
 	 */
 	
+	// Set global tag variable to whatever is being searched, perform query on that tag
+	searchSubmit: function(e) {
+		e.preventDefault();
+		TagBrowser.tag = $('#search-input').val();
+		TagBrowser.getPhotoDataForTag();
+	},
+	
+	
+	// Query the Instagram API and set the gallery to the new photos
+	getPhotoDataForTag: function() {
+		
+		// Prepare gallery by setting its class to "filled" and adding loading message
+		$('#gallery').removeClass('empty').addClass('filled').empty().prepend('<p id="message"></p>');
+		$('#message').addClass('loading').text('Grabbing new photos...');
+		
+		// Make ajax call to Instagram API to get photo data
+		$.ajax({
+			url: 'tagbrowser.php?search=' + encodeURIComponent(TagBrowser.tag),
+			success: function(data) {
+				if (data == "") {
+					TagBrowser.showMessage('Sorry! That doesn\'t appear to be a valid tag. Try using just one word.');
+				} else {
+					var newPhotoData = $.parseJSON(data);
+					TagBrowser.photoData = newPhotoData["data"];
+					TagBrowser.refreshGallery();
+				} 
+			},
+			error: function() {
+				TagBrowser.showMessage('We\'re having trouble connecting to Instagram right now. Try again later.');
+			}
+		});
+	},
+	
+	
+	// Use global photo data to refresh photo gallery
+	refreshGallery: function() {		
+		if (TagBrowser.photoData) {
+			if (TagBrowser.photoData.length > 0) {
+				$('#gallery').removeClass('empty').addClass('filled').empty();
+				for (i = 0; i < TagBrowser.photoData.length; i++) {
+					$("#gallery").append('<figure><img src="' + TagBrowser.photoData[i]['images']['low_resolution']['url'] + '" class="thumb"/></figure>');
+				}	
+			} else {
+				TagBrowser.showMessage('Sorry! There aren\'t any photos for that tag.');
+			}
+		} else {
+			TagBrowser.showMessage('There was a problem showing this photo set!');
+		}
+	},
+	
 	// Animate thumbnails on hover so they're slightly larger
 	thumbHoverOn: function() {
+		$(this).stop(true, true);
 		$(this).css('position', 'relative');
-		$(this).animate({'width': '+=8px', 'top': "-=2px", 'left': '-=2px'}, 250);
+		$(this).animate({'width': '+=8px', 'top': '-=2px', 'left': '-=2px'}, 250);
 		$(this).css('box-shadow', '0 0 5px #333');
 	},
 	
 	
 	// Return thumbnails to original size and position on rollout
 	thumbHoverOff: function() {
-		$(this).css({'width': '-=8px', 'top': "+=2px", 'left': '+=2px'});
+		$(this).stop(true, true);
+		$(this).css({'width': '-=8px', 'top': '+=2px', 'left': '+=2px'});
 		$(this).css('position', 'static');
 		$(this).css('box-shadow', 'none');
+	},
+	
+	showMessage: function(message) {
+		$('#gallery').removeClass('filled').addClass('empty').empty().prepend('<p id="message"></p>');
+		$('#message').text(message);
 	}
-	
-	
 }
 
 /*
@@ -65,6 +121,7 @@ var TagBrowser = {
 function SetEventHandlers() {
 	$('#gallery').on('mouseenter', '.thumb', null, TagBrowser.thumbHoverOn);
 	$('#gallery').on('mouseleave', '.thumb', null, TagBrowser.thumbHoverOff);
+	$('#search').on('submit', TagBrowser.searchSubmit);
 }
 
 
