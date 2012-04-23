@@ -32,6 +32,12 @@ var TagBrowser = {
 	// The current tag being queried/displayed, as a string
 	tag: null,
 	
+	// The current value of the search input field
+	typedTag: null,
+	
+	// Timeout object used for search suggest timeout
+	searchSuggestTimeout: null,
+	
 	
 	
 	/*
@@ -58,7 +64,7 @@ var TagBrowser = {
 			url: 'tagbrowser.php?search=' + encodeURIComponent(TagBrowser.tag),
 			success: function(data) {
 				if (data == "") {
-					TagBrowser.showMessage('Sorry! That doesn\'t appear to be a valid tag. Try using just one word.');
+					TagBrowser.showMessage('Sorry! That doesn\'t appear to be a valid tag.');
 				} else {
 					var newPhotoData = $.parseJSON(data);
 					TagBrowser.photoData = newPhotoData["data"];
@@ -71,6 +77,41 @@ var TagBrowser = {
 		});
 	},
 	
+	// Event handler for search suggestions
+	searchInputKeyPress: function(e) {
+		
+		/* clearTimeout() and setTimeout() are used in order to limit
+		 * the number of calls to the Instagram API */
+		
+		clearTimeout(TagBrowser.searchSuggestTimeout);
+		TagBrowser.searchSuggestTimeout = setTimeout('TagBrowser.getSuggestionsForTag()', 1000);
+	},
+	
+	// Query the Instagram API to get tag suggestions for the given tag
+	getSuggestionsForTag: function() {
+		TagBrowser.typedTag = $('#search-input').val();
+		if (TagBrowser.typedTag != "") {
+			$.ajax({
+				url: 'tagbrowser.php?suggest=' + encodeURIComponent(TagBrowser.typedTag),
+				success: function(data) {
+					if (data != "") {
+						var newTagData = $.parseJSON(data);
+						TagBrowser.tagData = newTagData['data'];
+						TagBrowser.refreshSuggestions();
+					}
+				}
+			});			
+		}
+	},
+	
+	refreshSuggestions: function() {
+		suggestions = "Search Suggestions:\n";
+		for (i = 0; i < TagBrowser.tagData.length; i++) {
+			suggestions += TagBrowser.tagData[i]['name'];
+			suggestions += '\n';
+		}
+		alert(suggestions);
+	},
 	
 	// Use global photo data to refresh photo gallery
 	refreshGallery: function() {		
@@ -122,6 +163,7 @@ function SetEventHandlers() {
 	$('#gallery').on('mouseenter', '.thumb', null, TagBrowser.thumbHoverOn);
 	$('#gallery').on('mouseleave', '.thumb', null, TagBrowser.thumbHoverOff);
 	$('#search').on('submit', TagBrowser.searchSubmit);
+	$('#search-input').on('keypress', TagBrowser.searchInputKeyPress);
 }
 
 
