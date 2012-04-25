@@ -9,6 +9,12 @@
  *
  ******************************************************************/
 
+/*
+ * Pre-defined Constants
+ */
+
+var MAX_SUGGESTIONS = 5;
+var TIME_BETWEEN_API_CALLS = 500;
 
 /*
  * var TagBrowser
@@ -80,11 +86,16 @@ var TagBrowser = {
 	// Event handler for search suggestions
 	searchInputKeyPress: function(e) {
 		
-		/* clearTimeout() and setTimeout() are used in order to limit
-		 * the number of calls to the Instagram API */
+		/* clearTimeout() and setTimeout() are used in order to limit the
+		 * number of calls to the Instagram API when typing search terms */
 		
 		clearTimeout(TagBrowser.searchSuggestTimeout);
-		TagBrowser.searchSuggestTimeout = setTimeout('TagBrowser.getSuggestionsForTag()', 1000);
+		TagBrowser.searchSuggestTimeout = setTimeout('TagBrowser.getSuggestionsForTag()', TIME_BETWEEN_API_CALLS);
+		
+		// Clear seach suggest when the search field is empty
+		if ($('#search-input').val() == "") {
+			$('#search-suggest').remove();
+		}
 	},
 	
 	// Query the Instagram API to get tag suggestions for the given tag
@@ -98,19 +109,38 @@ var TagBrowser = {
 						var newTagData = $.parseJSON(data);
 						TagBrowser.tagData = newTagData['data'];
 						TagBrowser.refreshSuggestions();
+					} else {
+						$('#search-suggest').remove();
 					}
 				}
 			});			
+		} else {
+			$('#search-suggest').remove();
 		}
 	},
 	
+	// Display/refresh the search suggestion list
 	refreshSuggestions: function() {
-		suggestions = "Search Suggestions:\n";
-		for (i = 0; i < TagBrowser.tagData.length; i++) {
-			suggestions += TagBrowser.tagData[i]['name'];
-			suggestions += '\n';
+		if (TagBrowser.tagData.length > 0) {
+			$('#search-suggest').remove();
+			$('#search-box').append('<ul id="search-suggest"><ul>');
+			for (i = 0; i < TagBrowser.tagData.length && i < MAX_SUGGESTIONS; i++) {
+				var li = $('<li><a href="#">' + TagBrowser.tagData[i]['name'] + ' ('  + TagBrowser.tagData[i]['media_count'] + ')</a></li>');
+				li.on('click', 'a', TagBrowser.tagData[i], TagBrowser.inputSuggestion);
+				$('#search-suggest').append(li);
+			}
+		} else {
+			$('#search-suggest').remove();
 		}
-		alert(suggestions);
+	},
+	
+	// Takes a clicked sugestion and puts it in the search field, gets suggestions for that tag
+	inputSuggestion: function(e) {
+		e.preventDefault();
+		$('#search-input').val(e.data['name']);
+		$('#search-suggest').remove();
+		TagBrowser.tag = e.data['name'];
+		TagBrowser.getPhotoDataForTag();
 	},
 	
 	// Use global photo data to refresh photo gallery
@@ -146,6 +176,7 @@ var TagBrowser = {
 		$(this).css('box-shadow', 'none');
 	},
 	
+	// Replace gallery content with a generic message
 	showMessage: function(message) {
 		$('#gallery').removeClass('filled').addClass('empty').empty().prepend('<p id="message"></p>');
 		$('#message').text(message);
@@ -163,7 +194,12 @@ function SetEventHandlers() {
 	$('#gallery').on('mouseenter', '.thumb', null, TagBrowser.thumbHoverOn);
 	$('#gallery').on('mouseleave', '.thumb', null, TagBrowser.thumbHoverOff);
 	$('#search').on('submit', TagBrowser.searchSubmit);
-	$('#search-input').on('keypress', TagBrowser.searchInputKeyPress);
+	$('#search-input').on('keydown', TagBrowser.searchInputKeyPress);
+	$('#search-input').on('blur', function() { 
+		setTimeout( function() {
+			$('#search-suggest').remove();
+		}, 250); 
+	});
 }
 
 
