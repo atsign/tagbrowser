@@ -15,6 +15,8 @@
 
 var MAX_SUGGESTIONS = 5;
 var TIME_BETWEEN_API_CALLS = 500;
+var MODAL_FADEIN = 200;
+var MODAL_FADEOUT = 200;
 
 /*
  * var TagBrowser
@@ -149,7 +151,12 @@ var TagBrowser = {
 			if (TagBrowser.photoData.length > 0) {
 				$('#gallery').removeClass('empty').addClass('filled').empty();
 				for (i = 0; i < TagBrowser.photoData.length; i++) {
-					$("#gallery").append('<figure><img src="' + TagBrowser.photoData[i]['images']['low_resolution']['url'] + '" class="thumb"/></figure>');
+					var figure = $('<figure />');
+					var imageAnchor = $('<a href="' + TagBrowser.photoData[i]['images']['standard_resolution']['url'] + '"><img src="' + TagBrowser.photoData[i]['images']['low_resolution']['url'] + '" class="thumb"/></a>');
+					
+					$(imageAnchor).on('click', null, TagBrowser.photoData[i], TagBrowser.showPhoto);
+					$(imageAnchor).appendTo(figure)
+					$(figure).appendTo('#gallery');
 				}	
 			} else {
 				TagBrowser.showMessage('Sorry! There aren\'t any photos for that tag.');
@@ -157,6 +164,30 @@ var TagBrowser = {
 		} else {
 			TagBrowser.showMessage('There was a problem showing this photo set!');
 		}
+	},
+	
+	// Show a higher resolution photo in a modal box
+	showPhoto: function(e) {
+		e.preventDefault();
+		$('#photo-box').remove(); // In case there's already a photo box showing, remove it
+		
+		$('<div/>', {
+			class: 'modal clearfix',
+			id: 'photo-box'
+		}).prependTo('#main').hide();
+		$('#photo-box').append('<div class="close"></div>');
+		$('#photo-box').append('<img src="' + e.data['images']['standard_resolution']['url'] + '" id="large-photo" />');
+		$('#photo-box').append('<img src="' + e.data['user']['profile_picture'] + '" id="profile-pic" />');
+		$('#photo-box').append('<div id="photo-details" />');
+		$('#photo-details').append('<h2>Author</h2');
+		$('#photo-details').append('<p>' + e.data['user']['username'] + '</p');
+		$('#photo-details').append('<h2>Description</h2>');
+		$('#photo-details').append('<p>' + e.data['caption']['text'] + '</p>');
+		
+		var thumbTop = $(this).position().top;
+		$('#photo-box').css('top', thumbTop - 300);
+		
+		$('#photo-box').fadeIn(MODAL_FADEIN);
 	},
 	
 	// Animate thumbnails on hover so they're slightly larger
@@ -195,6 +226,12 @@ function SetEventHandlers() {
 	$('#gallery').on('mouseleave', '.thumb', null, TagBrowser.thumbHoverOff);
 	$('#search').on('submit', TagBrowser.searchSubmit);
 	$('#search-input').on('keydown', TagBrowser.searchInputKeyPress);
+	
+	// Close icon for modal boxes
+	$('body').on('click', '.close', null, function(e) {
+		e.preventDefault();
+		$(this).parent().fadeOut(MODAL_FADEOUT);
+	});
 	
 	// Remove search suggestion list when focus is taken away from search field, but only after a short delay
 	$('#search-input').on('blur', function() { 

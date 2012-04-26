@@ -90,6 +90,7 @@ a:hover, a:focus, a:active {
 body {
 	background-color: #fff;
 	font-family: "Trebuchet MS", sans-serif;
+	overflow-y: scroll;
 }
 
 .wrap {
@@ -306,10 +307,6 @@ header h1 {
 #large-photo {
 	margin-bottom: 20px;
 	width: 512px;
-}
-
-#photo-details {
-	width: 380px;
 }
 
 #profile-pic {
