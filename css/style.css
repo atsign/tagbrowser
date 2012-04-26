@@ -269,7 +269,7 @@ header h1 {
 }
 
 #gallery figure {
-	/*border: 1px solid #333;*/
+	background: url('img/ajax-loader.gif') center center no-repeat;
 	height: 200px;
 	float: left;
 	margin: 0;

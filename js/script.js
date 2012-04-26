@@ -195,6 +195,8 @@ function SetEventHandlers() {
 	$('#gallery').on('mouseleave', '.thumb', null, TagBrowser.thumbHoverOff);
 	$('#search').on('submit', TagBrowser.searchSubmit);
 	$('#search-input').on('keydown', TagBrowser.searchInputKeyPress);
+	
+	// Remove search suggestion list when focus is taken away from search field, but only after a short delay
 	$('#search-input').on('blur', function() { 
 		setTimeout( function() {
 			$('#search-suggest').remove();
