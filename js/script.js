@@ -184,9 +184,6 @@ var TagBrowser = {
 		$('#photo-details').append('<h2>Description</h2>');
 		$('#photo-details').append('<p>' + e.data['caption']['text'] + '</p>');
 		
-		var thumbTop = $(this).position().top;
-		$('#photo-box').css('top', thumbTop - 300);
-		
 		$('#photo-box').fadeIn(MODAL_FADEIN);
 	},
 	

@@ -286,9 +286,9 @@ header h1 {
 #photo-box {
 	margin-bottom: 25px;
 	padding: 32px;
-	top: 10px;
-	left: 224px;
-	width: 512px;
+	position: fixed;
+	top: 25px;
+	width: 900px;
 	z-index: 1499;
 }
 
@@ -305,8 +305,10 @@ header h1 {
 }
 
 #large-photo {
-	margin-bottom: 20px;
-	width: 512px;
+	float: left;
+	margin: 20px;
+	margin-top: 0;
+	width: 350px;
 }
 
 #profile-pic {
