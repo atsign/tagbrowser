@@ -135,7 +135,9 @@ var TagBrowser = {
 		$('#photo-details').append('<h2>Author</h2');
 		$('#photo-details').append('<p>' + e.data['user']['username'] + '</p');
 		$('#photo-details').append('<h2>Description</h2>');
-		$('#photo-details').append('<p>' + e.data['caption']['text'] + '</p>');
+		
+		if (e.data['caption'] != null)
+			$('#photo-details').append('<p>' + e.data['caption']['text'] + '</p>');
 		
 		$('#photo-box').fadeIn(MODAL_FADEIN);
 	},

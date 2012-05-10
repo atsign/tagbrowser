@@ -312,13 +312,13 @@ header h1 {
 	float: left;
 	margin: 20px;
 	margin-top: 0;
-	width: 350px;
+	width: 450px;
 }
 
 #profile-pic {
 	width: 160px;
-	float: left;
-	margin-right: 12px;
+	float: right;
+	margin-left: 12px;
 }
 
 /*** Footer ***/
