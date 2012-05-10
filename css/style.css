@@ -222,7 +222,7 @@ header h1 {
 
 /*** About ***/
 #about {
-	top: 0;
+	top: -35px;
 	left: 130px;
 	padding: 10px 55px;
 	width:610px;
