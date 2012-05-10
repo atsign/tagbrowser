@@ -14,6 +14,7 @@
  */
 
 var MAX_SUGGESTIONS = 5;
+var MIN_SEARCH_SUGGEST_LENGTH = 3;
 var TIME_BETWEEN_API_CALLS = 500;
 var MODAL_FADEIN = 200;
 var MODAL_FADEOUT = 200;
@@ -34,17 +35,8 @@ var TagBrowser = {
 	// Global photo data from latest call to Instagram API
 	photoData: null,
 	
-	// Global tag data from latest call to Instagram API
-	tagData: null,
-	
 	// The current tag being queried/displayed, as a string
 	tag: null,
-	
-	// The current value of the search input field
-	typedTag: null,
-	
-	// Timeout object used for search suggest timeout
-	searchSuggestTimeout: null,
 	
 	
 	
@@ -85,64 +77,25 @@ var TagBrowser = {
 		});
 	},
 	
-	// Event handler for search suggestions
-	searchInputKeyPress: function(e) {
-		
-		/* clearTimeout() and setTimeout() are used in order to limit the
-		 * number of calls to the Instagram API when typing search terms */
-		
-		clearTimeout(TagBrowser.searchSuggestTimeout);
-		TagBrowser.searchSuggestTimeout = setTimeout('TagBrowser.getSuggestionsForTag()', TIME_BETWEEN_API_CALLS);
-		
-		// Clear seach suggest when the search field is empty
-		if ($('#search-input').val() == "") {
-			$('#search-suggest').remove();
-		}
-	},
-	
 	// Query the Instagram API to get tag suggestions for the given tag
-	getSuggestionsForTag: function() {
-		TagBrowser.typedTag = $('#search-input').val();
-		if (TagBrowser.typedTag != "") {
-			$.ajax({
-				url: 'tagbrowser.php?suggest=' + encodeURIComponent(TagBrowser.typedTag),
-				success: function(data) {
-					if (data != "") {
-						var newTagData = $.parseJSON(data);
-						TagBrowser.tagData = newTagData['data'];
-						TagBrowser.refreshSuggestions();
-					} else {
-						$('#search-suggest').remove();
+	getSuggestionsForTag: function(termObj, callback) {
+		$.ajax({
+			autocompleteCallback: callback,
+			url: 'tagbrowser.php?suggest=' + encodeURIComponent(termObj.term),
+			success: function(data) {
+				if (data != "") {
+					var newTagData = $.parseJSON(data);
+					var suggestList = [];
+					for (i = 0; i < newTagData['data'].length && i < MAX_SUGGESTIONS; i++) {
+						suggestList[i] = {
+							label: newTagData['data'][i]['name'] + "  (" + newTagData['data'][i]['media_count'] + ")",
+							value: newTagData['data'][i]['name']
+						}
 					}
+					this.autocompleteCallback(suggestList);
 				}
-			});			
-		} else {
-			$('#search-suggest').remove();
-		}
-	},
-	
-	// Display/refresh the search suggestion list
-	refreshSuggestions: function() {
-		if (TagBrowser.tagData.length > 0) {
-			$('#search-suggest').remove();
-			$('#search-box').append('<ul id="search-suggest"><ul>');
-			for (i = 0; i < TagBrowser.tagData.length && i < MAX_SUGGESTIONS; i++) {
-				var li = $('<li><a href="#">' + TagBrowser.tagData[i]['name'] + ' ('  + TagBrowser.tagData[i]['media_count'] + ')</a></li>');
-				li.on('click', 'a', TagBrowser.tagData[i], TagBrowser.inputSuggestion);
-				$('#search-suggest').append(li);
 			}
-		} else {
-			$('#search-suggest').remove();
-		}
-	},
-	
-	// Takes a clicked sugestion and puts it in the search field, gets suggestions for that tag
-	inputSuggestion: function(e) {
-		e.preventDefault();
-		$('#search-input').val(e.data['name']);
-		$('#search-suggest').remove();
-		TagBrowser.tag = e.data['name'];
-		TagBrowser.getPhotoDataForTag();
+		});
 	},
 	
 	// Use global photo data to refresh photo gallery
@@ -212,17 +165,22 @@ var TagBrowser = {
 }
 
 /*
- * function SetEventHandlers()
+ * function init()
  *
- * Assigns event handlers to their corresponding objects
+ * Assigns event handlers to their corresponding objects,
+ * and initializes jQuery UI objects
  */
 
 
-function SetEventHandlers() {
+function init() {
 	$('#gallery').on('mouseenter', '.thumb', null, TagBrowser.thumbHoverOn);
 	$('#gallery').on('mouseleave', '.thumb', null, TagBrowser.thumbHoverOff);
 	$('#search').on('submit', TagBrowser.searchSubmit);
-	$('#search-input').on('keydown', TagBrowser.searchInputKeyPress);
+	$("#search-input").autocomplete({
+		source: TagBrowser.getSuggestionsForTag,
+		delay: TIME_BETWEEN_API_CALLS,
+		minLength: MIN_SEARCH_SUGGEST_LENGTH
+	});
 	
 	// Close icon for modal boxes
 	$('body').on('click', '.close', null, function(e) {
@@ -230,12 +188,6 @@ function SetEventHandlers() {
 		$(this).parent().fadeOut(MODAL_FADEOUT);
 	});
 	
-	// Remove search suggestion list when focus is taken away from search field, but only after a short delay
-	$('#search-input').on('blur', function() { 
-		setTimeout( function() {
-			$('#search-suggest').remove();
-		}, 250); 
-	});
 }
 
 
@@ -245,7 +197,7 @@ function SetEventHandlers() {
 
 $(document).ready(function() {
 	
-	SetEventHandlers();
+	init();
 	
 });
 

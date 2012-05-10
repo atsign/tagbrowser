@@ -155,7 +155,7 @@ header h1 {
 
 /*** Search Suggest ***/
 
-#search-suggest {
+.ui-autocomplete {
 	background-color: #EEE;
 	list-style: none;
 	padding: 0;
@@ -166,16 +166,20 @@ header h1 {
 	z-index: 1498;
 }
 
-#search-suggest li {
+.ui-autocomplete li {
 	border-bottom: 2px solid #999;
 	margin: 0;
 	padding: 2px 6px;
 }
 
-#search-suggest li a {
+.ui-autocomplete li a {
 	color: #999;
 	font-family: sans-serif;
 	font-size: 38px;
+}
+
+.ui-autocomplete a.ui-state-hover {
+	background-color: #DDD;
 }
 
 
