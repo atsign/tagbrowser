@@ -179,6 +179,14 @@ var TagBrowser = {
 	showMessage: function(message) {
 		$('#gallery').removeClass('filled').addClass('empty').empty().prepend('<p id="message"></p>');
 		$('#message').text(message);
+	},
+	
+	
+	// Automatically search for a suggestion when user selects it
+	suggestionSelect: function(event, ui) {
+		event.preventDefault();
+		$('#search-input').val(ui.item.value);
+		$('#search-input').submit();
 	}
 }
 
@@ -203,7 +211,8 @@ function init() {
 	$("#search-input").autocomplete({
 		source: TagBrowser.getSuggestionsForTag,
 		delay: TIME_BETWEEN_API_CALLS,
-		minLength: MIN_SEARCH_SUGGEST_LENGTH
+		minLength: MIN_SEARCH_SUGGEST_LENGTH,
+		select: TagBrowser.suggestionSelect
 	});
 	
 	// Close icon for modal boxes
