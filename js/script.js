@@ -153,7 +153,7 @@ var TagBrowser = {
 		}).prependTo('#main').hide();
 		$('#about').append('<div class="close"></div>');
 		$('#about').append('<h2>About Tag Browser</h2>');
-		$('#about').append('<p>Tag Browser is a Web-based <a href="http://instagr.am" />Instagram</a> client. It allows you to search Instagram for the latest photos under your favorite hashtags. It was created by Andrew Iafrate (<a href="http://www.aifrate.com">aiafrate.com</a>). Andrew is a computer science student at Indiana University Southeast. Tag Browser is written in Javascript and PHP. The source code is freely available on <a href="http://www.github.com">github.com</a>. Want to make Tag Browser better? Start a fork and write some code! :)</p>');
+		$('#about').append('<p>Tag Browser is a Web-based <a href="http://instagr.am" />Instagram</a> client. It allows you to search Instagram for the latest photos under your favorite hashtags. It was created by Andrew Iafrate (<a href="http://www.aifrate.com">aiafrate.com</a>). Andrew is a computer science student at Indiana University Southeast. Tag Browser is written in Javascript and PHP. The source code is freely available on <a href="http://github.com/atsign/tagbrowser">github.com</a>. Want to make Tag Browser better? Start a fork and write some code! :)</p>');
 		
 		$('#about').fadeIn(MODAL_FADEIN);
 	},
