@@ -217,7 +217,7 @@ header h1 {
 }
 
 .close {
-	background: url('img/close_icon.gif');
+	background: url('img/close_icon.png');
 	cursor: pointer;
 	position: absolute;
 	top: -15px;
